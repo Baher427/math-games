@@ -54,7 +54,7 @@ export default function HomePage() {
           const data = await response.json();
           dispatch({ type: 'SET_PLAYER', payload: data });
         } else {
-          // إذا فشل الطلب، نعيد تعيين الحالة
+          // إذا فشل الطلب (مثلاً اللاعب غير موجود)، نعيد توجيه لتسجيل الدخول
           dispatch({ type: 'RESET_STORE' });
         }
       } catch (error) {
@@ -63,13 +63,11 @@ export default function HomePage() {
       }
     };
 
-    if (status === 'authenticated' && session?.user && isLoading) {
+    // تحميل بيانات اللاعب فقط إذا كان مسجل الدخول
+    if (status === 'authenticated' && session?.user) {
       loadPlayer();
-    } else if (status === 'unauthenticated') {
-      // إعادة تعيين الحالة عند عدم تسجيل الدخول
-      dispatch({ type: 'RESET_STORE' });
     }
-  }, [dispatch, isLoading, session, status]);
+  }, [dispatch, session, status]);
 
   const handleSignOut = () => {
     dispatch({ type: 'RESET_STORE' });

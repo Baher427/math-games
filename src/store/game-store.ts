@@ -721,7 +721,7 @@ export const useGameStore = create<GameState & { dispatch: (action: GameAction) 
         set({
           ...initialState,
           player: null,
-          isLoading: true
+          isLoading: false
         });
         break;
     }
