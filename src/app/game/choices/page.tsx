@@ -16,7 +16,7 @@ function ChoicesGameContent() {
 
   // تهيئة اللعبة
   useEffect(() => {
-    dispatch({ type: 'SELECT_TABLE', payload: tableNumber });
+    dispatch({ type: 'START_GAME', payload: { gameType: 'choices', tableNumber } });
   }, [tableNumber, dispatch]);
 
   // تشغيل الصوت

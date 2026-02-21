@@ -15,7 +15,7 @@ function MatchingGameContent() {
   const { playMatch } = useSound();
 
   useEffect(() => {
-    dispatch({ type: 'SELECT_TABLE', payload: tableNumber });
+    dispatch({ type: 'START_GAME', payload: { gameType: 'matching', tableNumber } });
   }, [tableNumber, dispatch]);
 
   useEffect(() => {

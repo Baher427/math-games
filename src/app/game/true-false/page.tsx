@@ -15,7 +15,7 @@ function TrueFalseGameContent() {
   const { playCorrect, playWrong } = useSound();
 
   useEffect(() => {
-    dispatch({ type: 'SELECT_TABLE', payload: tableNumber });
+    dispatch({ type: 'START_GAME', payload: { gameType: 'true-false', tableNumber } });
   }, [tableNumber, dispatch]);
 
   useEffect(() => {

@@ -1,14 +1,14 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Star, Trophy, Target, RotateCcw, Home, Check, X } from 'lucide-react';
+import { Star, Trophy, Target, RotateCcw, Home, Check, X } from 'lucide-react';
 import { useGameStore } from '@/store/game-store';
 import { useSound } from '@/hooks/use-sound';
 import { useEffect } from 'react';
 
 export default function ResultsPage() {
   const router = useRouter();
-  const { currentGameScore, totalQuestions, answers, dispatch } = useGameStore();
+  const { currentGameScore, totalQuestions, answers, selectedGame, selectedTable, dispatch } = useGameStore();
   const { playWin } = useSound();
 
   useEffect(() => {
@@ -22,8 +22,12 @@ export default function ResultsPage() {
   const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
   const handleRestart = () => {
-    dispatch({ type: 'RESTART' });
-    router.back();
+    if (selectedGame && selectedTable) {
+      dispatch({ type: 'START_GAME', payload: { gameType: selectedGame, tableNumber: selectedTable } });
+      router.push(`/game/${selectedGame}?table=${selectedTable}`);
+    } else {
+      router.push('/');
+    }
   };
 
   const getEmoji = () => {
