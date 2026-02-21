@@ -50,19 +50,29 @@ export default function HomePage() {
     const loadPlayer = async () => {
       try {
         const response = await fetch('/api/player');
-        const data = await response.json();
-        dispatch({ type: 'SET_PLAYER', payload: data });
+        if (response.ok) {
+          const data = await response.json();
+          dispatch({ type: 'SET_PLAYER', payload: data });
+        } else {
+          // إذا فشل الطلب، نعيد تعيين الحالة
+          dispatch({ type: 'RESET_STORE' });
+        }
       } catch (error) {
         console.error('Failed to load player:', error);
+        dispatch({ type: 'RESET_STORE' });
       }
     };
-    
-    if (isLoading && session?.user) {
+
+    if (status === 'authenticated' && session?.user && isLoading) {
       loadPlayer();
+    } else if (status === 'unauthenticated') {
+      // إعادة تعيين الحالة عند عدم تسجيل الدخول
+      dispatch({ type: 'RESET_STORE' });
     }
-  }, [dispatch, isLoading, session]);
+  }, [dispatch, isLoading, session, status]);
 
   const handleSignOut = () => {
+    dispatch({ type: 'RESET_STORE' });
     signOut({ callbackUrl: '/' });
   };
 
@@ -74,7 +84,27 @@ export default function HomePage() {
     return AVATAR_IMAGES[((avatarId - 1) % TOTAL_AVATARS)];
   };
 
-  if (status === 'loading' || isLoading || !player) {
+  // إذا كانت الـ session في حالة تحميل
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} className="w-16 h-16 border-4 border-orange-400 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  // إذا لم يكن مسجل الدخول - إعادة توجيه لتسجيل الدخول
+  if (status === 'unauthenticated' || !session?.user) {
+    router.push('/api/auth/signin');
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+        <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} className="w-16 h-16 border-4 border-orange-400 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  // إذا كان مسجل الدخول ولكن لم يتم تحميل الـ player بعد
+  if (isLoading || !player) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
         <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} className="w-16 h-16 border-4 border-orange-400 border-t-transparent rounded-full" />

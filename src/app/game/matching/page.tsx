@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { ArrowRight, Star, Check } from 'lucide-react';
 import { useGameStore } from '@/store/game-store';
 import { useSound } from '@/hooks/use-sound';
@@ -10,19 +11,48 @@ function MatchingGameContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tableNumber = parseInt(searchParams.get('table') || '2');
-  
-  const { matchingQuestion, matchingRound, currentGameScore, dispatch } = useGameStore();
+  const { status } = useSession();
+
+  const { matchingQuestion, matchingRound, currentGameScore, dispatch, player, isLoading } = useGameStore();
   const { playMatch } = useSound();
 
+  // التحقق من تسجيل الدخول
   useEffect(() => {
-    dispatch({ type: 'START_GAME', payload: { gameType: 'matching', tableNumber } });
-  }, [tableNumber, dispatch]);
+    if (status === 'unauthenticated') {
+      router.push('/api/auth/signin');
+    }
+  }, [status, router]);
+
+  // تهيئة اللعبة - فقط إذا كان مسجل الدخول
+  useEffect(() => {
+    if (status === 'authenticated' && player && !isLoading) {
+      dispatch({ type: 'START_GAME', payload: { gameType: 'matching', tableNumber } });
+    }
+  }, [tableNumber, dispatch, status, player, isLoading]);
 
   useEffect(() => {
     if (matchingRound > 5) {
       router.push('/results');
     }
   }, [matchingRound, router]);
+
+  // إذا كانت الـ session في حالة تحميل أو الـ player
+  if (status === 'loading' || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
+        <div className="w-16 h-16 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // إذا لم يكن مسجل الدخول
+  if (status === 'unauthenticated' || !player) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
+        <div className="w-16 h-16 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const handleSelectQuestion = (question: string) => {
     dispatch({ type: 'SELECT_MATCHING_QUESTION', payload: question });

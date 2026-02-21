@@ -1,8 +1,10 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { ArrowRight } from 'lucide-react';
+import { useGameStore } from '@/store/game-store';
 
 const TABLES = [2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -10,12 +12,39 @@ function SelectTableContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const gameType = searchParams.get('game') || 'choices';
+  const { status } = useSession();
+  const { player, isLoading } = useGameStore();
 
   const gameNames: Record<string, string> = {
     'choices': 'لعبة الاختيارات',
     'matching': 'لعبة التوصيل',
     'true-false': 'لعبة صح وخطأ'
   };
+
+  // التحقق من تسجيل الدخول
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/api/auth/signin');
+    }
+  }, [status, router]);
+
+  // إذا كانت الـ session في حالة تحميل أو الـ player
+  if (status === 'loading' || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-violet-50 to-fuchsia-50">
+        <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // إذا لم يكن مسجل الدخول
+  if (status === 'unauthenticated' || !player) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-violet-50 to-fuchsia-50">
+        <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const handleSelectTable = (table: number) => {
     router.push(`/game/${gameType}?table=${table}`);

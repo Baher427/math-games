@@ -2,7 +2,8 @@
 
 import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowRight, Star, Trophy, X, Check } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { ArrowRight, Star, Trophy, Check } from 'lucide-react';
 import { useGameStore } from '@/store/game-store';
 import { useSound } from '@/hooks/use-sound';
 
@@ -10,32 +11,63 @@ function TrueFalseGameContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tableNumber = parseInt(searchParams.get('table') || '2');
-  
-  const { trueFalseQuestion, currentGameScore, totalQuestions, hasAnswered, isCorrect, dispatch } = useGameStore();
+  const { status } = useSession();
+
+  const { trueFalseQuestion, currentGameScore, totalQuestions, hasAnswered, isCorrect, dispatch, player, isLoading } = useGameStore();
   const { playCorrect, playWrong } = useSound();
 
+  // التحقق من تسجيل الدخول
   useEffect(() => {
-    dispatch({ type: 'START_GAME', payload: { gameType: 'true-false', tableNumber } });
-  }, [tableNumber, dispatch]);
+    if (status === 'unauthenticated') {
+      router.push('/api/auth/signin');
+    }
+  }, [status, router]);
 
+  // تهيئة اللعبة - فقط إذا كان مسجل الدخول
   useEffect(() => {
-    if (hasAnswered) {
+    if (status === 'authenticated' && player && !isLoading) {
+      dispatch({ type: 'START_GAME', payload: { gameType: 'true-false', tableNumber } });
+    }
+  }, [tableNumber, dispatch, status, player, isLoading]);
+
+  // تشغيل الصوت
+  useEffect(() => {
+    if (hasAnswered && player) {
       if (isCorrect) {
         playCorrect();
       } else {
         playWrong();
       }
     }
-  }, [hasAnswered, isCorrect, playCorrect, playWrong]);
+  }, [hasAnswered, isCorrect, playCorrect, playWrong, player]);
 
+  // الانتقال التلقائي
   useEffect(() => {
-    if (hasAnswered) {
+    if (hasAnswered && player) {
       const timer = setTimeout(() => {
         dispatch({ type: 'NEXT_QUESTION' });
       }, isCorrect ? 1500 : 2500);
       return () => clearTimeout(timer);
     }
-  }, [hasAnswered, isCorrect, dispatch]);
+  }, [hasAnswered, isCorrect, dispatch, player]);
+
+  // إذا كانت الـ session في حالة تحميل أو الـ player
+  if (status === 'loading' || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+        <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // إذا لم يكن مسجل الدخول
+  if (status === 'unauthenticated' || !player) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+        <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const handleAnswer = (answer: boolean) => {
     if (!hasAnswered) {
@@ -45,7 +77,7 @@ function TrueFalseGameContent() {
 
   if (!trueFalseQuestion) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
         <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin" />
       </div>
     );

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Users, Settings, BarChart3, Shield, Crown, ChevronLeft, Search, Trash2, Star, TrendingUp, Gamepad2, Trophy, Ban, Plus, Minus, RotateCcw, X, Check, Save, Eye, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,7 +41,9 @@ type AdminTab = 'overview' | 'players' | 'settings';
 
 export default function AdminPage() {
   const router = useRouter();
+  const { status } = useSession();
   const player = useGameStore((state) => state.player);
+  const storeIsLoading = useGameStore((state) => state.isLoading);
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const [players, setPlayers] = useState<Player[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,6 +59,13 @@ export default function AdminPage() {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [showPlayerModal, setShowPlayerModal] = useState(false);
   const [pointsAmount, setPointsAmount] = useState(10);
+
+  // التحقق من تسجيل الدخول
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/api/auth/signin');
+    }
+  }, [status, router]);
 
   // التحقق من صلاحيات الأدمن
   useEffect(() => {
@@ -267,7 +277,25 @@ export default function AdminPage() {
     { id: 'settings' as AdminTab, label: 'الإعدادات', icon: Settings },
   ];
 
-  if (!player?.isAdmin) {
+  // إذا كانت الـ session في حالة تحميل
+  if (status === 'loading' || storeIsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // إذا لم يكن مسجل الدخول
+  if (status === 'unauthenticated' || !player) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!player.isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { ArrowRight, Star, Check, Lock, Pencil, X } from 'lucide-react';
 import { useGameStore } from '@/store/game-store';
 import { usePlayerSync } from '@/hooks/use-player-sync';
@@ -29,7 +30,8 @@ const TOTAL_AVATARS = AVATAR_IMAGES.length;
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { player, dispatch } = useGameStore();
+  const { status } = useSession();
+  const { player, dispatch, isLoading } = useGameStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -40,6 +42,14 @@ export default function ProfilePage() {
   // تزامن البيانات
   usePlayerSync(15000);
 
+  // التحقق من تسجيل الدخول
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/api/auth/signin');
+    }
+  }, [status, router]);
+
+  // جلب إعدادات سعر الصورة
   useEffect(() => {
     fetch('/api/admin/settings')
       .then(res => res.json())
@@ -48,6 +58,25 @@ export default function ProfilePage() {
       })
       .catch(console.error);
   }, []);
+
+  // إعادة توجيه إذا لم يكن هناك player
+  if (status === 'loading' || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+        <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (status === 'unauthenticated') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+        <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!player) return null;
 
   const handleSaveName = async () => {
     if (!editName.trim()) return;
@@ -126,8 +155,6 @@ export default function ProfilePage() {
   const getAvatarImage = (avatarId: number): string => {
     return AVATAR_IMAGES[((avatarId - 1) % TOTAL_AVATARS)];
   };
-
-  if (!player) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4">

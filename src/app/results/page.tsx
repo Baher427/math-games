@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { Star, Trophy, Target, RotateCcw, Home, Check, X } from 'lucide-react';
 import { useGameStore } from '@/store/game-store';
 import { useSound } from '@/hooks/use-sound';
@@ -8,14 +9,41 @@ import { useEffect } from 'react';
 
 export default function ResultsPage() {
   const router = useRouter();
-  const { currentGameScore, totalQuestions, answers, selectedGame, selectedTable, dispatch } = useGameStore();
+  const { status } = useSession();
+  const { currentGameScore, totalQuestions, answers, selectedGame, selectedTable, dispatch, player, isLoading } = useGameStore();
   const { playWin } = useSound();
 
+  // التحقق من تسجيل الدخول
   useEffect(() => {
-    if (currentGameScore > 0) {
+    if (status === 'unauthenticated') {
+      router.push('/api/auth/signin');
+    }
+  }, [status, router]);
+
+  // تشغيل صوت الفوز
+  useEffect(() => {
+    if (currentGameScore > 0 && player) {
       playWin();
     }
-  }, [currentGameScore, playWin]);
+  }, [currentGameScore, playWin, player]);
+
+  // إذا كانت الـ session في حالة تحميل أو الـ player
+  if (status === 'loading' || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+        <div className="w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // إذا لم يكن مسجل الدخول
+  if (status === 'unauthenticated' || !player) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+        <div className="w-16 h-16 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const correctCount = answers.filter(a => a.isCorrect).length;
   const wrongCount = answers.length - correctCount;
