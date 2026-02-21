@@ -46,6 +46,14 @@ export default function HomePage() {
   // تزامن البيانات
   usePlayerSync(15000);
 
+  // توجيه لتسجيل الدخول إذا لم يكن مسجل الدخول
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/api/auth/signin');
+    }
+  }, [status, router]);
+
+  // تحميل بيانات اللاعب
   useEffect(() => {
     const loadPlayer = async () => {
       try {
@@ -54,7 +62,6 @@ export default function HomePage() {
           const data = await response.json();
           dispatch({ type: 'SET_PLAYER', payload: data });
         } else {
-          // إذا فشل الطلب (مثلاً اللاعب غير موجود)، نعيد توجيه لتسجيل الدخول
           dispatch({ type: 'RESET_STORE' });
         }
       } catch (error) {
@@ -91,9 +98,8 @@ export default function HomePage() {
     );
   }
 
-  // إذا لم يكن مسجل الدخول - إعادة توجيه لتسجيل الدخول
+  // إذا لم يكن مسجل الدخول - انتظار التوجيه
   if (status === 'unauthenticated' || !session?.user) {
-    router.push('/api/auth/signin');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
         <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} className="w-16 h-16 border-4 border-orange-400 border-t-transparent rounded-full" />
