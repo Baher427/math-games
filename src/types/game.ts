@@ -100,7 +100,6 @@ export interface GameState {
 export type GameAction =
   | { type: 'SELECT_GAME'; payload: GameType }
   | { type: 'SELECT_TABLE'; payload: number }
-  | { type: 'START_GAME'; payload: { gameType: GameType; tableNumber: number } }
   | { type: 'GENERATE_QUESTION' }
   | { type: 'ANSWER'; payload: number }
   | { type: 'NEXT_QUESTION' }

@@ -257,6 +257,7 @@ export const useGameStore = create<GameState & { dispatch: (action: GameAction) 
           hasAnswered: false,
           selectedAnswer: null,
           isCorrect: null,
+          // إعادة تعيين تتبع الأسئلة
           usedQuestions: new Set<string>(),
           focusQuestions: new Set<string>(),
           lastQuestion: null,
@@ -264,7 +265,12 @@ export const useGameStore = create<GameState & { dispatch: (action: GameAction) 
         };
         
         if (selectedGame === 'choices') {
-          const { question, questionKey } = generateChoicesQuestion(action.payload, new Set(), new Set(), null);
+          const { question, questionKey } = generateChoicesQuestion(
+            action.payload, 
+            new Set(), 
+            new Set(), 
+            null
+          );
           newState.choicesQuestion = question;
           newState.lastQuestion = questionKey;
           newState.usedQuestions = new Set([questionKey]);
@@ -272,44 +278,12 @@ export const useGameStore = create<GameState & { dispatch: (action: GameAction) 
           newState.matchingQuestion = generateMatchingQuestion(action.payload);
           newState.matchingRound = 1;
         } else if (selectedGame === 'true-false') {
-          const { question, questionKey } = generateTrueFalseQuestion(action.payload, new Set(), new Set(), null);
-          newState.trueFalseQuestion = question;
-          newState.lastQuestion = questionKey;
-          newState.usedQuestions = new Set([questionKey]);
-        }
-        
-        set(newState);
-        break;
-      }
-        
-      case 'START_GAME': {
-        const { gameType, tableNumber } = action.payload;
-        let newState: Partial<GameState> = {
-          selectedGame: gameType,
-          selectedTable: tableNumber,
-          currentScreen: 'game',
-          currentGameScore: 0,
-          totalQuestions: 0,
-          answers: [],
-          hasAnswered: false,
-          selectedAnswer: null,
-          isCorrect: null,
-          usedQuestions: new Set<string>(),
-          focusQuestions: new Set<string>(),
-          lastQuestion: null,
-          screenHistory: []
-        };
-        
-        if (gameType === 'choices') {
-          const { question, questionKey } = generateChoicesQuestion(tableNumber, new Set(), new Set(), null);
-          newState.choicesQuestion = question;
-          newState.lastQuestion = questionKey;
-          newState.usedQuestions = new Set([questionKey]);
-        } else if (gameType === 'matching') {
-          newState.matchingQuestion = generateMatchingQuestion(tableNumber);
-          newState.matchingRound = 1;
-        } else if (gameType === 'true-false') {
-          const { question, questionKey } = generateTrueFalseQuestion(tableNumber, new Set(), new Set(), null);
+          const { question, questionKey } = generateTrueFalseQuestion(
+            action.payload, 
+            new Set(), 
+            new Set(), 
+            null
+          );
           newState.trueFalseQuestion = question;
           newState.lastQuestion = questionKey;
           newState.usedQuestions = new Set([questionKey]);
@@ -721,7 +695,7 @@ export const useGameStore = create<GameState & { dispatch: (action: GameAction) 
         set({
           ...initialState,
           player: null,
-          isLoading: false
+          isLoading: true
         });
         break;
     }
