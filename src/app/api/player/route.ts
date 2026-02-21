@@ -12,12 +12,33 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const player = await prisma.player.findUnique({
+    let player = await prisma.player.findUnique({
       where: { id: session.user.id }
     });
     
+    // لو الـ player مش موجود، ننشئ واحد جديد
     if (!player) {
-      return NextResponse.json({ error: 'Player not found' }, { status: 404 });
+      // نجيب بيانات الـ session
+      const email = session.user.email;
+      if (!email) {
+        return NextResponse.json({ error: 'No email in session' }, { status: 400 });
+      }
+      
+      const playerCount = await prisma.player.count();
+      
+      player = await prisma.player.create({
+        data: {
+          id: session.user.id,
+          email: email,
+          name: session.user.name || 'لاعب جديد',
+          googleId: session.user.id,
+          image: session.user.image,
+          avatarId: 1,
+          points: 0,
+          purchasedAvatars: '1',
+          isAdmin: playerCount === 0
+        }
+      });
     }
     
     // تحويل purchasedAvatars من string إلى array

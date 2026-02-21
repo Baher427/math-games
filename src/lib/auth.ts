@@ -90,12 +90,31 @@ export const authOptions: NextAuthOptions = {
             token.id = player.id;
             token.isBlocked = player.isBlocked;
             token.blockedReason = player.blockedReason;
-            console.log('🔐 JWT: Player ID set:', player.id);
+            console.log('🔐 JWT: Player ID set from user:', player.id);
+          } else {
+            console.log('🔐 JWT: Player not found for email:', user.email);
           }
         } catch (error) {
           console.error('🔐 JWT Error:', error);
         }
         return token;
+      }
+      
+      // لو الـ token مش فيه id، نحاول نجيبه من الـ email
+      if (!token.id && token.email) {
+        try {
+          const player = await prisma.player.findUnique({
+            where: { email: token.email as string }
+          });
+          if (player) {
+            token.id = player.id;
+            token.isBlocked = player.isBlocked;
+            token.blockedReason = player.blockedReason;
+            console.log('🔐 JWT: Player ID set from token.email:', player.id);
+          }
+        } catch (error) {
+          console.error('🔐 JWT lookup error:', error);
+        }
       }
       
       // التحقق من الحظر عند كل تحديث للـ session
@@ -107,7 +126,6 @@ export const authOptions: NextAuthOptions = {
           });
           
           if (player?.isBlocked) {
-            // إضافة معلومات الحظر للـ token
             token.isBlocked = true;
             token.blockedReason = player.blockedReason;
             console.log('🔐 JWT: Player is blocked!');
