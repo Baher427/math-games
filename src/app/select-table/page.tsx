@@ -1,11 +1,12 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 
 const TABLES = [2, 3, 4, 5, 6, 7, 8, 9];
 
-export default function SelectTablePage() {
+function SelectTableContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const gameType = searchParams.get('game') || 'choices';
@@ -54,5 +55,17 @@ export default function SelectTablePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SelectTablePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-violet-50 to-fuchsia-50 flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <SelectTableContent />
+    </Suspense>
   );
 }

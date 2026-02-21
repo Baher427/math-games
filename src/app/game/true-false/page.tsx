@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight, Star, Trophy, X, Check } from 'lucide-react';
 import { useGameStore } from '@/store/game-store';
 import { useSound } from '@/hooks/use-sound';
 
-export default function TrueFalseGamePage() {
+function TrueFalseGameContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tableNumber = parseInt(searchParams.get('table') || '2');
@@ -54,24 +54,16 @@ export default function TrueFalseGamePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 p-4">
       <div className="max-w-2xl mx-auto">
-        {/* الشريط العلوي */}
         <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() => router.push('/')}
-            className="flex items-center gap-2 px-4 py-2 text-purple-700 bg-white/50 rounded-full hover:bg-white/80 transition-colors active:scale-95"
-          >
+          <button onClick={() => router.push('/')} className="flex items-center gap-2 px-4 py-2 text-purple-700 bg-white/50 rounded-full hover:bg-white/80 transition-colors active:scale-95">
             <ArrowRight className="w-5 h-5" />
             <span className="font-medium">العودة</span>
           </button>
-          <button
-            onClick={() => router.push('/results')}
-            className="px-4 py-2 text-white bg-gradient-to-r from-red-400 to-pink-500 rounded-full font-medium shadow-lg active:scale-95"
-          >
+          <button onClick={() => router.push('/results')} className="px-4 py-2 text-white bg-gradient-to-r from-red-400 to-pink-500 rounded-full font-medium shadow-lg active:scale-95">
             إنهاء اللعب
           </button>
         </div>
 
-        {/* النقاط */}
         <div className="flex justify-center gap-4 mb-8">
           <div className="flex items-center gap-2 px-6 py-3 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg">
             <Star className="w-6 h-6 text-amber-500" />
@@ -85,7 +77,6 @@ export default function TrueFalseGamePage() {
           </div>
         </div>
 
-        {/* السؤال */}
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-12 mb-8">
           <div className="text-center">
             <div className="mb-4 px-4 py-1 bg-purple-100 rounded-full text-purple-600 font-medium inline-block">
@@ -98,7 +89,6 @@ export default function TrueFalseGamePage() {
           </div>
         </div>
 
-        {/* أزرار الصح والخطأ */}
         <div className="flex justify-center gap-6">
           <button
             onClick={() => handleAnswer(true)}
@@ -128,7 +118,6 @@ export default function TrueFalseGamePage() {
           </button>
         </div>
 
-        {/* رسالة النتيجة */}
         {hasAnswered && (
           <div className="mt-8 text-center">
             {isCorrect ? (
@@ -148,5 +137,17 @@ export default function TrueFalseGamePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function TrueFalseGamePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <TrueFalseGameContent />
+    </Suspense>
   );
 }

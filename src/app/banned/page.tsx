@@ -1,9 +1,10 @@
 'use client';
 
+import { Suspense } from 'react';
 import { ShieldX, Mail, MessageCircle, AlertTriangle } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
-export default function BannedPage() {
+function BannedContent() {
   const searchParams = useSearchParams();
   const reason = searchParams.get('reason') || 'تم حظر حسابك';
 
@@ -68,5 +69,17 @@ export default function BannedPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function BannedPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-950 to-slate-900 flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-red-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <BannedContent />
+    </Suspense>
   );
 }

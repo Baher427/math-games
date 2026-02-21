@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowRight, Star, Trophy, Check } from 'lucide-react';
+import { ArrowRight, Star, Check } from 'lucide-react';
 import { useGameStore } from '@/store/game-store';
 import { useSound } from '@/hooks/use-sound';
 
-export default function MatchingGamePage() {
+function MatchingGameContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tableNumber = parseInt(searchParams.get('table') || '2');
@@ -48,12 +48,8 @@ export default function MatchingGamePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 p-4">
       <div className="max-w-2xl mx-auto">
-        {/* الشريط العلوي */}
         <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() => router.push('/')}
-            className="flex items-center gap-2 px-4 py-2 text-emerald-700 bg-white/50 rounded-full hover:bg-white/80 transition-colors active:scale-95"
-          >
+          <button onClick={() => router.push('/')} className="flex items-center gap-2 px-4 py-2 text-emerald-700 bg-white/50 rounded-full hover:bg-white/80 transition-colors active:scale-95">
             <ArrowRight className="w-5 h-5" />
             <span className="font-medium">العودة</span>
           </button>
@@ -68,15 +64,12 @@ export default function MatchingGamePage() {
           </div>
         </div>
 
-        {/* العنوان */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">لعبة التوصيل</h1>
           <p className="text-gray-500">جدول {tableNumber} - وصّل الأسئلة بالإجابات</p>
         </div>
 
-        {/* الأسئلة */}
         <div className="grid grid-cols-2 gap-6">
-          {/* جانب الأسئلة */}
           <div className="space-y-3">
             <h3 className="text-center text-gray-600 font-medium mb-2">الأسئلة</h3>
             {matchingQuestion.pairs.map((pair) => (
@@ -98,7 +91,6 @@ export default function MatchingGamePage() {
             ))}
           </div>
 
-          {/* جانب الإجابات */}
           <div className="space-y-3">
             <h3 className="text-center text-gray-600 font-medium mb-2">الإجابات</h3>
             {shuffledAnswers.map((answer, i) => {
@@ -123,17 +115,26 @@ export default function MatchingGamePage() {
           </div>
         </div>
 
-        {/* التقدم */}
         <div className="mt-8 bg-white/50 rounded-full p-1">
           <div 
             className="h-3 bg-gradient-to-r from-emerald-400 to-green-500 rounded-full transition-all duration-500"
             style={{ width: `${(matchingQuestion.matchedCount / 5) * 100}%` }}
           />
         </div>
-        <p className="text-center text-gray-500 mt-2">
-          تم توصيل {matchingQuestion.matchedCount}/5
-        </p>
+        <p className="text-center text-gray-500 mt-2">تم توصيل {matchingQuestion.matchedCount}/5</p>
       </div>
     </div>
+  );
+}
+
+export default function MatchingGamePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <MatchingGameContent />
+    </Suspense>
   );
 }

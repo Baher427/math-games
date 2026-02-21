@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight, Star, Trophy, X, Check } from 'lucide-react';
 import { useGameStore } from '@/store/game-store';
 import { useSound } from '@/hooks/use-sound';
 
-export default function ChoicesGamePage() {
+function ChoicesGameContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tableNumber = parseInt(searchParams.get('table') || '2');
@@ -145,5 +145,17 @@ export default function ChoicesGamePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ChoicesGamePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <ChoicesGameContent />
+    </Suspense>
   );
 }
