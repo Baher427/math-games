@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// اللاعب
+model Player {
+  id               String       @id @default(cuid())
+  email            String       @unique
+  name             String
+  image            String?
+  googleId         String       @unique
+  avatarId         Int          @default(1)
+  points           Int          @default(0)
+  purchasedAvatars String       @default("1")
+  isAdmin          Boolean      @default(false)
+  isBlocked        Boolean      @default(false)
+  blockedReason    String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  gameRecords      GameRecord[]
+
+  @@map("Player")
+}
+
+// سجل الألعاب
+model GameRecord {
+  id          String   @id @default(cuid())
+  playerId    String
+  gameType    String
+  tableNumber Int
+  score       Int
+  correct     Int
+  wrong       Int
+  total       Int
+  createdAt   DateTime @default(now())
+
+  player      Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@map("GameRecord")
+}
+
+// الصور الرمزية
+model Avatar {
+  id        Int      @id @default(autoincrement())
+  name      String
+  price     Int      @default(100)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("Avatar")
+}
+
+// إعدادات النظام
+model SystemSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("SystemSettings")
+}

@@ -1,0 +1,98 @@
+{
+  "name": "جدول الضرب - لعبة تعليمية",
+  "short_name": "جدول الضرب",
+  "description": "لعبة تعليمية ممتعة لتعلم جدول الضرب للأطفال",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f97316",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["education", "games", "kids"],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "الصفحة الرئيسية"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "لعبة الاختيارات",
+      "short_name": "الاختيارات",
+      "description": "ابدأ لعبة الاختيارات",
+      "url": "/?screen=table-select&game=choices",
+      "icons": [{ "src": "/icons/choices-icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "لعبة التوصيل",
+      "short_name": "التوصيل",
+      "description": "ابدأ لعبة التوصيل",
+      "url": "/?screen=table-select&game=matching",
+      "icons": [{ "src": "/icons/matching-icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "لعبة صح وخطأ",
+      "short_name": "صح وخطأ",
+      "description": "ابدأ لعبة صح وخطأ",
+      "url": "/?screen=table-select&game=true-false",
+      "icons": [{ "src": "/icons/truefalse-icon.png", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
